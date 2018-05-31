@@ -10,13 +10,10 @@ class TaskQueue
 {
  public:
     TaskQueue(int capacity = 0)
-        : _capacity(capacity), _size(0), _is_close(false)
-    {
-    }
+        : _capacity(capacity), _size(0), _is_close(false) { }
 
     template<class U>
-    void Push(U &&elem)
-    {
+    void Push(U &&elem) {
         std::unique_lock<std::mutex> lock(_mutex);
         if (_capacity > 0) {
             _push_cond.wait(lock, [this]{ return _queue.size() < _capacity; });
@@ -28,8 +25,7 @@ class TaskQueue
     }
 
     template<class U>
-    void PushFront(U &&elem)
-    {
+    void PushFront(U &&elem) {
         std::unique_lock<std::mutex> lock(_mutex);
         _queue.push_front(std::forward<U>(elem));
         _size = _queue.size();
@@ -37,32 +33,27 @@ class TaskQueue
         _pop_cond.notify_one();
     }
 
-    bool Pop(T &elem, int64_t timeout_us = -1)
-    {
+    bool Pop(T &elem, int64_t timeout_us = -1) {
         std::unique_lock<std::mutex> lock(_mutex);
-        if (timeout_us < 0) {
+        if (timeout_us < 0) 
             _pop_cond.wait(lock, [this]{ return !_queue.empty() || _is_close; });
-        } else {
+        else {
             if (!_pop_cond.wait_for(lock, std::chrono::microseconds(timeout_us),
-                                 [this]{ return !_queue.empty() || _is_close; })) {
+                                 [this]{ return !_queue.empty() || _is_close; })) 
                 return false;
-            }
         }
-        if (_queue.empty()) {
+        if (_queue.empty()) 
             return false;
-        }
         elem = std::move(_queue.front());
         _queue.pop_front();
         _size = _queue.size();
         lock.unlock();
-        if (_capacity > 0) {
+        if (_capacity > 0) 
             _push_cond.notify_one();
-        }
         return true;
     }
 
-    void Close()
-    {
+    void Close() {
         {
             std::lock_guard<std::mutex> lock(_mutex);
             _is_close = true;
@@ -71,13 +62,11 @@ class TaskQueue
         _pop_cond.notify_all();
     }
 
-    bool IsClose() const
-    {
+    bool IsClose() const {
         return _is_close;
     }
 
-    int Size() const
-    {
+    int Size() const {
         return _size;
     }
 
