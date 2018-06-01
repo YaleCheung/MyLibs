@@ -13,7 +13,7 @@ class TaskQueue
         : _capacity(capacity), _size(0), _is_close(false) { }
 
     template<class U>
-    void Push(U &&elem) {
+    void push(U &&elem) {
         std::unique_lock<std::mutex> lock(_mutex);
         if (_capacity > 0) {
             _push_cond.wait(lock, [this]{ return _queue.size() < _capacity; });
@@ -25,7 +25,7 @@ class TaskQueue
     }
 
     template<class U>
-    void PushFront(U &&elem) {
+    void pushFront(U &&elem) {
         std::unique_lock<std::mutex> lock(_mutex);
         _queue.push_front(std::forward<U>(elem));
         _size = _queue.size();
@@ -33,7 +33,7 @@ class TaskQueue
         _pop_cond.notify_one();
     }
 
-    bool Pop(T &elem, int64_t timeout_us = -1) {
+    bool pop(T &elem, int64_t timeout_us = -1) {
         std::unique_lock<std::mutex> lock(_mutex);
         if (timeout_us < 0) 
             _pop_cond.wait(lock, [this]{ return !_queue.empty() || _is_close; });
@@ -53,7 +53,7 @@ class TaskQueue
         return true;
     }
 
-    void Close() {
+    void close() {
         {
             std::lock_guard<std::mutex> lock(_mutex);
             _is_close = true;
@@ -62,11 +62,11 @@ class TaskQueue
         _pop_cond.notify_all();
     }
 
-    bool IsClose() const {
+    bool isClose() const {
         return _is_close;
     }
 
-    int Size() const {
+    int size() const {
         return _size;
     }
 

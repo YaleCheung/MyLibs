@@ -36,29 +36,18 @@ CFixedArray<T, SIZE>::CFixedArray(const CFixedArray<T, SIZE> &right)
 template <class T, unsigned int SIZE>
 CFixedArray<T, SIZE>::CFixedArray(const T *pData, unsigned int iSize)
 {
-    if (pData != NULL)
-    {
-        if (iSize < SIZE)
-        {
+    if (pData != NULL) {
+        if (iSize < SIZE) {
             memcpy(m_data, pData, iSize * sizeof(T));
             memset(m_data + iSize, 0, (SIZE - iSize) * sizeof(T));
-        }
-        else
-        {
+        } else 
             memcpy(m_data, pData, sizeof(m_data));
-        }
-    }
-    else
-    {
+    } else 
         memset(m_data, 0, sizeof(m_data));
-    }
 }
 
 template <class T, unsigned int SIZE>
-CFixedArray<T, SIZE>::~CFixedArray()
-{
-
-}
+CFixedArray<T, SIZE>::~CFixedArray() { }
 
 template <class T, unsigned int SIZE>
 CFixedArray<T, SIZE> & CFixedArray<T, SIZE>::operator = (const CFixedArray<T, SIZE> &right)
@@ -96,8 +85,7 @@ bool CFixedArray<T, SIZE>::operator < (const CFixedArray<T, SIZE> &right) const
 struct filesha1_hash_functor
 {
     // super hash
-    size_t operator()(const uint8 * const &pFileSha1) const
-    {
+    size_t operator()(const uint8 * const &pFileSha1) const {
         // supper fast hash    
 
 #define get16bits(d) (*((const uint16 *)(d)))
@@ -115,8 +103,7 @@ struct filesha1_hash_functor
         len >>= 2;
 
         /* Main loop */
-        for (; len > 0; len--) 
-        {
+        for (; len > 0; len--) {
             hash  += get16bits(data);
             tmp    = (get16bits(data+2) << 11) ^ hash;
             hash   = (hash << 16) ^ tmp;
@@ -125,8 +112,7 @@ struct filesha1_hash_functor
         }
 
         /* Handle end cases */
-        switch (rem) 
-        {
+        switch (rem) {
         case 3: 
             hash += get16bits (data);
             hash ^= hash << 16;
@@ -163,22 +149,16 @@ struct filesha1_hash_functor
 
 struct filesha1_eq_functor
 {
-    bool operator()(const uint8 * const &pLeftFileSha1, const uint8 * const &pRightFileSha1) const
-    {
+    bool operator()(const uint8 * const &pLeftFileSha1, const uint8 * const &pRightFileSha1) const {
         return memcmp(pLeftFileSha1, pRightFileSha1, SHA1_LEN) == 0;
     }
 };
 
-struct  filesha1_less_functor
-{
-    bool operator()(const uint8 * const &pLeftFileSha1, const uint8 * const &pRightFileSha1) const
-    {
-        for (uint32 i=0; i<SHA1_LEN; i++)
-        {
-            if (pLeftFileSha1[i]>=pRightFileSha1[i])
-            {
+struct  filesha1_less_functor {
+    bool operator()(const uint8 * const &pLeftFileSha1, const uint8 * const &pRightFileSha1) const {
+        for (uint32 i=0; i<SHA1_LEN; i++) {
+            if (pLeftFileSha1[i]>=pRightFileSha1[i]) 
                 return false;
-            }
         }
         return true;
     }
